@@ -4,12 +4,15 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const User = require('./models/userModel');
-// const Product = require('./models/Product');
+const Product = require('./models/Product');
+const Category = require('./models/Category');
 const cors = require('cors');
 const routes = require('./routes/route.js');
-
+const session = require('express-session');
 const productRouter = require('./routes/productRoute');
-const cartRouter = require('./routes/cartRoute')
+const cartRouter = require('./routes/cartRoute');
+const categoryRouter = require('./routes/categoryRoute');
+
  
 require("dotenv").config({
  path: path.join(__dirname, "../.env")
@@ -50,11 +53,26 @@ app.use(async (req, res, next) => {
  } 
 });
 
+app.use(session({
+  secret: '123456',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+      secure: true
+  }
+}));
+
 
 app.use(cors());
-
+// a middleware with no mount path; gets executed for every request to the app
+app.use(function (req, res, next) {
+  console.log('Time:', Date.now());
+  next();
+});
+app.get('/categoryRouter', categoryRouter);
 app.use('/api2/products', productRouter);
 app.use('/api2/cart', cartRouter);
+app.use('/api2/category/add', categoryRouter)
 
 
 
@@ -94,6 +112,15 @@ app.use((req, res, next) => {
     next();
   });
 
+
+  app.route({
+    method: 'DELETE',
+    path: '/sessions/_current',
+    handler: function(req, reply){
+      req.auth.session.clear();
+      reply({}).code(204);
+    }
+  }); 
 
 
  

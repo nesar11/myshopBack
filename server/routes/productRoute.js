@@ -7,6 +7,7 @@ const extractFile = require('../middleware/file');
 
 
 productRouter.post('/add', extractFile, productController.createProduct);
-productRouter.get('/', productController.productRead)
+productRouter.get('/', productController.productRead);
+productRouter.get('/add-to-cart/:id', productController.readCart);
 
 module.exports = productRouter;
